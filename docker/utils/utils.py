@@ -449,7 +449,8 @@ def create_host_config(
     restart_policy=None, cap_add=None, cap_drop=None, devices=None,
     extra_hosts=None, read_only=None, pid_mode=None, ipc_mode=None,
     security_opt=None, ulimits=None, log_config=None, mem_limit=None,
-    memswap_limit=None, cgroup_parent=None, version=None
+    memswap_limit=None, cgroup_parent=None, version=None,
+    cpu_quota=None, cpu_period=None
 ):
     host_config = {}
 
@@ -508,6 +509,20 @@ def create_host_config(
 
     if devices:
         host_config['Devices'] = parse_devices(devices)
+
+    if cpu_quota:
+        if compare_version(version, '1.19') < 0:
+            raise errors.InvalidVersion(
+                'cpu_quota param not supported for API version < 1.19'
+            )
+        host_config['CpuQuota'] = cpu_quota
+
+    if cpu_period:
+        if compare_version(version, '1.19') < 0:
+            raise errors.InvalidVersion(
+                'cpu_quota param not supported for API version < 1.19'
+            )
+        host_config['CpuPeriod'] = cpu_period
 
     if dns is not None:
         host_config['Dns'] = dns
